@@ -3,25 +3,27 @@ import { serialize } from 'cookie';
 
 export default function handlerLogin(req, res) {
   const { email, password } = req.body;
+  const expireDate = (1 / 8) * 24 * 60 * 60 * 1000;
 
   if (email === 'admin@local.com' && password === 'admin') {
     const token = jwt.sign(
       {
-        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
+        expiresIn: '3h',
         email: 'admin@local.com',
         username: '@danny',
       },
       'secret'
     );
 
+    console.log(expireDate);
     //NOTE:como buena practica se devuelve el token en la cabecera de la respuesta
     res.setHeader(
       'Set-Cookie',
-      serialize('token-id', token, {
+      serialize('tokenId', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 1000 * 60 * 60 * 24 * 7,
+        maxAge: expireDate,
         path: '/',
       })
     );
